@@ -24,7 +24,7 @@
         (t/schedule-token-renewal
           (name token-key)
           token-key
-          (partial t/renew-token? 1/24)
+          (partial t/renew-token?  1/24)
           (fn [] (t/new-token! funcade-params))
           stop-chan)
         {:token-details (:body token) :stop-chan stop-chan}))))
