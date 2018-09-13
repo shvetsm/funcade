@@ -4,6 +4,7 @@
             [jsonista.core :as json]
             [cuerdas.core :as s]
             [funcade.codec :as codec]
+            [com.rpl.specter :as sp]
             [funcade.state :refer [state]])
   (:import [java.time Instant]))
 
@@ -54,7 +55,7 @@
                                                                     :client_id client-id
                                                                     :client_secret client-secret
                                                                     :scope scope} ))]
-    (http/request {:url token-url :method :post :headers token-headers :body payload} #(a/put! ch %))
+    (http/request {:url token-url :method :post :headers (sp/transform [sp/MAP-KEYS] name token-headers) :body payload} #(a/put! ch %))
     ch))
 
 (defn schedule-token-renewal [name-of-job token-key should-renew? new-token! stop-ch]

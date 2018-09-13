@@ -5,8 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/core.async "0.4.474"]
-                 [tolitius//envoy "0.1.8"]
                  [http-kit "2.3.0"]
                  [funcool/cuerdas "2.0.5"]
                  [metosin/jsonista "0.1.1"]
+                 [com.rpl/specter "1.1.1"]
                  [camel-snake-kebab "0.4.0"]])
