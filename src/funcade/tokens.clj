@@ -15,7 +15,7 @@
     (< time-in-seconds expires)))
 
 (defn renew-token? [{:keys [issued expires] :as m} now percentage]
-  (assert (in-open-interval? 0 1 percentage) "percentage is not in (0,1) interval")
+  (assert (in-open-interval? 0 1 percentage) (str "percentage is not in (0,1) interval: " percentage))
   (let [diff  (- expires now)
         delta (Math/abs diff)
         p     (/ delta (Math/abs (- expires issued)))]
