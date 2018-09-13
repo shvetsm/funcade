@@ -11,8 +11,7 @@
    :client-id OAuth 2.0 client id
    :client-secret OAuth 2.0 secret (a hex string)
    :scope OAuth 2.0 Scope
-   :token-headers a map of headers {\"Cookie\" \"foo=bar\"}
-  :expires-percentage percent of token left-to-live time before requesting a new token}"
+   :token-headers a map of headers {\"Cookie\" \"foo=bar\"}"
   [token-key funcade-params]
   (let [stop-chan (a/chan 10)
         [token err] (a/<!! (t/new-token! funcade-params))]
@@ -25,7 +24,7 @@
         (t/schedule-token-renewal
           (name token-key)
           token-key
-          (partial t/renew-token? (:expires-percentage funcade-params))
+          (partial t/renew-token? 1/24)
           (fn [] (t/new-token! funcade-params))
           stop-chan)
         {:token-details (:body token) :stop-chan stop-chan}))))
