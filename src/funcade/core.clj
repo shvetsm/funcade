@@ -21,7 +21,7 @@
         (log/error "can't acquire token!" err)
         (throw err))
       (do
-        (assoc! state token-key token)
+        (swap! state (fn [s] (assoc s token-key token)))
         (t/schedule-token-renewal
           (name token-key)
           token-key
