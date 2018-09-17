@@ -21,7 +21,7 @@
         p (/ delta (Math/abs (- expires issued)))]
     (or (< delta 60)
         (neg? diff)
-        (< p percentage))))
+        (> p percentage))))
 
 (defn token-valid? [m]
   (token-in-interval? m (.getEpochSecond (Instant/now))))
