@@ -3,14 +3,14 @@
             [org.httpkit.client :as http]
             [jsonista.core :as json]
             [cuerdas.core :as s]
+            [clojure.tools.logging :as log]
             [funcade.codec :as codec]
-            [com.rpl.specter :as sp]
-            [funcade.state :refer [state]])
+            [com.rpl.specter :as sp])
   (:import [java.time Instant]))
 
 (defn in-open-interval? [begin end value] (< begin value end))
 
-(defn token-in-interval? [{:keys [issued expires]} time-in-seconds]
+(defn token-in-interval? [{:keys [expires]} time-in-seconds]
   (when expires
     (< time-in-seconds expires)))
 
@@ -21,7 +21,7 @@
         p (/ delta (Math/abs (- expires issued)))]
     (or (< delta 60)
         (neg? diff)
-        (> p percentage))))
+        (< p percentage))))
 
 (defn token-valid? [m]
   (token-in-interval? m (.getEpochSecond (Instant/now))))
@@ -40,7 +40,7 @@
   (if err
     r
     (let [data token
-          t (merge data {:issued (.toEpochMilli (Instant/now))} (parse-token-data data))]
+          t (merge data {:issued (.getEpochSecond (Instant/now))} (parse-token-data data))]
       (if-not (token-valid? t)
         [nil (ex-info "token has expired" t)]
         [t nil]))))
@@ -58,19 +58,19 @@
     (http/request {:url token-url :method :post :headers (sp/transform [sp/MAP-KEYS] name token-headers) :body payload} #(a/put! ch  %))
     ch))
 
-(defn schedule-token-renewal [name-of-job token-key should-renew? new-token! stop-ch]
-  (println "Starting token refresh poll" "name-of-job" name-of-job "token-key" token-key)
+(defn schedule-token-renewal [name-of-job token-key should-renew? new-token! stop-ch token-store]
+  (log/trace "Starting token refresh poll" "name-of-job" name-of-job "token-key" token-key)
   (a/go-loop []
-    (println "running" name-of-job "token renewal..." token-key)
+    (log/trace "running" name-of-job "token renewal..." token-key)
     (let [now (fn [] (.getEpochSecond (Instant/now)))
           [_ ch] (a/alts! [stop-ch (a/timeout 60000)])]
       (cond
-        (= ch stop-ch) (println "stopping" name-of-job "token poller...")
-        (should-renew? (get @state token-key) (now)) (let [[token err] (a/<! (new-token!))]
+        (= ch stop-ch) (log/trace "stopping" name-of-job "token poller...")
+        (should-renew? (get @token-store token-key) (now)) (let [[token err] (a/<! (new-token!))]
                                                        (if err
-                                                         (println "couldn't renew token for" name-of-job err)
+                                                         (log/trace "couldn't renew token for" name-of-job err)
                                                          (do
-                                                           (println "renewing token:" token)
-                                                           (swap! state (fn [s] (assoc s token-key token)))))
+                                                           (log/trace "renewing token:" token)
+                                                           (swap! token-store (fn [s] (assoc s token-key token)))))
                                                        (recur))
         :else (recur)))))
