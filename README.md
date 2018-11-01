@@ -17,7 +17,7 @@ user=> (def conf {:client-id "planet-earth"
 ```
 
 ```clojure
-user=> (def token-repo (f/wake-token-retreiver :serpens conf))
+user=> (def token-repo (f/wake-token-master :serpens conf))
 #'user/token-repo
 
 user=> (f/current-token token-repo)
