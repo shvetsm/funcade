@@ -3,6 +3,20 @@
             [clojure.tools.logging :as log]
             [funcade.tokens :as t]))
 
+(defn- stop-token-channel! [stop-chan]
+  (a/put! stop-chan ::stop))
+
+(defprotocol MasterTokens
+  (current-token [_])
+  (stop [_]))
+
+(deftype TokenMaster [token-name tokens =stop=]
+  MasterTokens
+  (current-token [_]
+    (-> @tokens token-name :access-token))
+  (stop [_]
+    (stop-token-channel! =stop=)))
+
 (defn- init-token-channel!
   [token-key funcade-params token-store]
   (let [stop-chan (a/chan 10)
@@ -22,9 +36,6 @@
           token-store)
         stop-chan))))
 
-(defn- stop-token-channel! [stop-chan]
-  (a/put! stop-chan ::stop))
-
 (defn wake-token-retreiver [token-name config]
   "config is
   {:token-url OAuth 2.0 server url
@@ -35,8 +46,7 @@
    :token-headers a map of headers {\"Cookie\" \"foo=bar\"}
    :refresh-percent (when less than x% of time between expires-at and issued-at remains, refresh the token)}"
 
-  (let [token-store (atom {})
-        stop-channel (init-token-channel! token-name config token-store)]
-    {:next-token #(:access-token (get @token-store token-name) )
-     :stop (partial stop-token-channel! stop-channel)}))
+  (let [tokens (atom {})
+        =stop= (init-token-channel! token-name config tokens)]
+    (TokenMaster. token-name tokens =stop=)))
 
