@@ -13,7 +13,7 @@
 (deftype TokenMaster [token-name tokens =stop=]
   MasterTokens
   (current-token [_]
-    (-> @tokens token-name :access-token))
+    (->  @tokens (get token-name) :access-token))
   (stop [_]
     (stop-token-channel! =stop=)))
 
