@@ -25,7 +25,7 @@
 (defn- stop-token-channel! [stop-chan]
   (a/put! stop-chan ::stop))
 
-(defn wake-token-retreiver [token-name config]
+(defn wake-token-master [token-name config]
   "config is
   {:token-url OAuth 2.0 server url
    :grant-type OAuth 2.0 grant type (client_crdentials, implicit, etc)

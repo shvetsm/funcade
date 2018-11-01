@@ -9,7 +9,7 @@ A Clojure library designed to grab tokens from OAuth 2.0
 (:require [funcade/core :as f])
 
 ...
-(def token-store (f/wake-wake-token-retreiver "my-token-key" config))
+(def token-store (f/wake-token-master "my-token-key" config))
 
 ...
 (def token ((:next-token token-store)))
