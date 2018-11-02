@@ -2,6 +2,9 @@
 
 A Clojure library designed to grab and auto renew tokens from OAuth 2.0
 
+[![<! release](https://img.shields.io/badge/dynamic/json.svg?label=release&url=https%3A%2F%2Fclojars.org%2Ffuncade%2Flatest-version.json&query=version&colorB=blue)](https://github.com/shvetsm/funcade/releases)
+[![<! clojars](https://img.shields.io/clojars/v/funcade.svg)](https://clojars.org/funcade)
+
 ## Usage
 
 ```clojure
